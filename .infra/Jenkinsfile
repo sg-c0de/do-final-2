@@ -4,7 +4,7 @@ pipeline {
     stage('checkout') {
       steps {
         cleanWs()
-        git(url: 'https://gitlab.rebrainme.com/devops_users_repos/2735/do-final-2.git', branch: 'master', credentialsId: 'Jenkins')
+        git(url: 'https://gitlab.rebrainme.com/devops_users_repos/2735/do-final-2.git', branch: 'master', credentialsId: 'gitlab_creds')
       }
     }
 
