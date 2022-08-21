@@ -25,7 +25,13 @@ pipeline {
         cd $WORKSPACE
         mkdir -p /opt/october/versions/$(git describe --tags)
 	      cp -r * /opt/october/versions/$(git describe --tags)
+
         ln -sf /etc/october/env /opt/october/versions/$(git describe --tags)/.env
+        if ls /opt/october/versions/$(git describe --tags)/storage; then
+	        rm -rf /opt/october/versions/$(git describe --tags)/storage
+        fi
+        ln -s /var/lib/october/storage /opt/october/versions/$(git describe --tags)/storage
+
         if ls /opt/october/current; then
 	        rm /opt/october/current
         fi
