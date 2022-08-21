@@ -26,7 +26,10 @@ pipeline {
         mkdir -p /opt/october/versions/$(git describe --tags)
 	      cp -r * /opt/october/versions/$(git describe --tags)
         ln -sf /etc/october/env /opt/october/versions/$(git describe --tags)/.env
-	      ln -sf /opt/october/versions/$(git describe --tags) /opt/october/current
+        if ls /opt/october/current; then
+	        rm /opt/october/current
+        fi
+	      ln -s /opt/october/versions/$(git describe --tags) /opt/october/current
         sudo systemctl reload php7.2-fpm.service
         '''
       }
