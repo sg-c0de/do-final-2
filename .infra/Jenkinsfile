@@ -23,6 +23,9 @@ pipeline {
       steps {
         sh '''#!/bin/bash -xe
         cd $WORKSPACE
+        if ls /opt/october/versions/$(git describe --tags); then
+	        rm -rf /opt/october/versions/$(git describe --tags)
+        fi
         mkdir -p /opt/october/versions/$(git describe --tags)
 	      cp -r * /opt/october/versions/$(git describe --tags)
 
@@ -36,7 +39,6 @@ pipeline {
 	        rm /opt/october/current
         fi
 	      ln -s /opt/october/versions/$(git describe --tags) /opt/october/current
-        sudo systemctl reload php7.2-fpm.service
         '''
       }
     }
