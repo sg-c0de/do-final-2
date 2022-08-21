@@ -8,6 +8,17 @@ pipeline {
       }
     }
 
+    stage('lint') {
+      steps {
+        sh '''#!/bin/bash -xe
+	      cd $WORKSPACE
+        composer config --no-plugins allow-plugins.composer/installers true
+        composer require php-parallel-lint/php-parallel-lint -n
+        composer lint
+        '''
+      }
+    }
+
     stage('build') {
       steps {
         sh '''#!/bin/bash -xe
