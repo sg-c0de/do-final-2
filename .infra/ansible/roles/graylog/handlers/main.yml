@@ -1,0 +1,24 @@
+---
+- name: restart elasticsearch
+  become: true
+  service:
+    daemon_reload: true
+    name: elasticsearch
+    state: restarted
+    enabled: yes
+
+- name: start mongodb
+  become: true
+  service:
+    daemon_reload: true
+    name: mongod.service
+    state: started
+    enabled: yes
+
+- name: restart graylog
+  become: true
+  service:
+    daemon_reload: true
+    name: graylog-server
+    state: restarted
+    enabled: yes

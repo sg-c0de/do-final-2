@@ -1,0 +1,46 @@
+app_packages:
+  - git
+  - php7.2-curl
+  - php7.2-xml
+  - php7.2-common
+  - php7.2-gd
+  - php7.2-json
+  - php7.2-mbstring
+  - php7.2-fpm
+  - php7.2-pgsql
+  - php7.2-zip
+composer_url: https://getcomposer.org/download/latest-stable/composer.phar
+app_user: app
+deploy_user: cicd
+postgresql_user: october
+postgresql_db: octoberdb
+app_repo: "https://{{ gituser | urlencode }}:{{ gitpassword | urlencode }}@gitlab.rebrainme.com/devops_users_repos/2735/do-final-2.git"
+gituser: sg_soap_at_gmail_com
+gitpassword: []
+app_name: october
+app_version: 1.1
+fpm_service_name: php7.2-fpm.service
+app_conf_dir: "/etc/{{ app_name }}"
+app_log_dir: "/var/log/{{ app_name }}"
+app_work_dir: "/var/lib/{{ app_name }}"
+app_deploy_dir: "/opt/{{ app_name }}"
+app_version_dir: "/opt/{{ app_name }}/versions"
+app_src_dir: "/usr/local/src/{{ app_name }}"
+app_build_dir: "/usr/local/src/{{ app_name }}/builds/{{ app_version }}"
+app_dirs:
+  - "{{ app_log_dir }}"
+  - "{{ app_work_dir }}"
+  - "{{ app_conf_dir }}"
+  - "{{ app_deploy_dir }}"
+  - "{{ app_version_dir }}"
+  - "{{ app_src_dir }}"
+
+app_symlinks:
+  - src: "{{ app_conf_dir }}/env"
+    dest: "{{ app_version_dir }}/{{ app_version }}/.env"
+  - src: "{{ app_log_dir }}"
+    dest: "{{ app_work_dir }}/storage/logs"
+  - src: "{{ app_work_dir }}/storage"
+    dest: "{{ app_version_dir }}/{{ app_version }}/storage"
+  - src: "{{ app_version_dir }}/{{ app_version }}"
+    dest: "{{ app_deploy_dir }}/current"

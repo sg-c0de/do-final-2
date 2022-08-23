@@ -1,0 +1,5 @@
+---
+fluentd_plugins:
+  - fluent-plugin-gelf
+
+td_agent_user: root

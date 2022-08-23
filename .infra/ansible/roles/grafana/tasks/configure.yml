@@ -1,0 +1,13 @@
+---
+- name: Deploy grafana config file
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    owner: root
+    group: grafana
+    mode: 0640
+  no_log: true
+  notify: restart grafana
+
+- name: Force reload
+  meta: flush_handlers

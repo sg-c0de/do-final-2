@@ -1,0 +1,38 @@
+---
+- name: Ensure build dir is absent
+  ansible.builtin.file:
+    path: "{{ app_build_dir }}"
+    state: absent
+  remote_user: "{{ deploy_user }}"
+
+- name: Create build dir
+  ansible.builtin.file:
+    path: "{{ app_build_dir }}"
+    state: directory
+  remote_user: "{{ deploy_user }}"
+
+- name: Git checkout
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_build_dir }}"
+    clone: yes
+  remote_user: "{{ deploy_user }}"
+
+- name: Allow composer/installers package
+  community.general.composer:
+    command: config
+    arguments: --no-plugins allow-plugins.composer/installers true
+    working_dir: "{{ app_build_dir }}"
+  remote_user: "{{ deploy_user }}"
+
+- name: Download and installs all libs and dependencies
+  community.general.composer:
+    command: install
+    working_dir: "{{ app_build_dir }}"
+  remote_user: "{{ deploy_user }}"
+
+- name: Set .env configuration
+  shell: php artisan october:env
+  args:
+    chdir: "{{ app_build_dir }}/"
+  remote_user: "{{ deploy_user }}"

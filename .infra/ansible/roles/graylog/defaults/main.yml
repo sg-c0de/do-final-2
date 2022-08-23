@@ -1,0 +1,26 @@
+---
+common_packages:
+  - apt-transport-https
+  - openjdk-11-jre-headless
+  - uuid-runtime
+  - pwgen
+
+es_cluster_name: graylog
+es_ip_address: "{{ ansible_facts['eth0']['ipv4']['address'] }}"
+es_port: 9200
+
+jvm_Xms: 512m
+jvm_Xmx: 512m
+
+graylog_repo_package: graylog-4.3-repository_latest.deb
+graylog_repo_url: 'https://packages.graylog2.org/repo/packages/{{ graylog_repo_package }}'
+
+graylog_packages:
+  - graylog-server
+  - graylog-enterprise-plugins
+  - graylog-integrations-plugins
+  - graylog-enterprise-integrations-plugins
+
+graylog_ip_address: 0.0.0.0:9000
+graylog_password_secret: []
+graylog_root_password_sha2: []

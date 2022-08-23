@@ -1,0 +1,110 @@
+---
+- name: Install dependencies
+  apt:
+    name:
+      - curl
+      - apt-transport-https
+      - gnupg
+      - openjdk-11-jre
+      - git
+      - python3-pip
+    update_cache: true
+    state: present
+
+- name: Install jenkins python package
+  ansible.builtin.pip:
+    name:
+      - python-jenkins
+
+- name: Import Jenkins apt repository key.
+  apt_key:
+    url: "{{ jenkins_repo_key_url }}"
+    state: present
+
+- name: Add Jenkins apt repository.
+  apt_repository:
+    repo: "{{ jenkins_repo_url }}"
+    state: present
+    update_cache: true
+
+- name: Install Jenkins
+  apt:
+    name:
+      - jenkins
+    state: present
+  notify: configure default users
+
+- name: Ensure jenkins directories exists.
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ jenkins_process_user }}"
+    group: "{{ jenkins_process_group }}"
+    mode: u+rwx
+    follow: true
+    recurse: yes
+  loop: "{{ jenkins_dirs }}"
+
+- name: Create custom init scripts directory.
+  file:
+    path: "{{ jenkins_home }}/init.groovy.d"
+    state: directory
+    owner: "{{ jenkins_process_user }}"
+    group: "{{ jenkins_process_group }}"
+    mode: 0775
+
+- name: Trigger handlers immediately
+  meta: flush_handlers
+
+- name: Check if jenkins_init_file exists.
+  stat:
+    path: "{{ jenkins_init_file }}"
+  register: jenkins_init_file_stat
+
+- name: Ensure jenkins_init_file exists.
+  file:
+    path: "{{ jenkins_init_file }}"
+    state: touch
+    mode: 0644
+  when: not jenkins_init_file_stat.stat.exists
+
+- name: Modify variables in init file.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    insertafter: '^{{ item.option }}='
+    regexp: '^{{ item.option }}=\"\${{ item.option }} '
+    line: '{{ item.option }}="${{ item.option }} {{ item.value }}"'
+    state: present
+    mode: 0644
+  loop: "{{ jenkins_init_changes }}"
+  notify: restart jenkins
+
+- name: Modify username in init file.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^{{ item.option }}='
+    line: '{{ item.option }}={{ item.value }}'
+    state: present
+    mode: 0644
+  notify: restart jenkins
+  loop: "{{ jenkins_init_user_changes }}"
+
+- name: Modify username in service file.
+  lineinfile:
+    dest: "{{ jenkins_service_file }}"
+    regexp: '^{{ item.option }}='
+    line: '{{ item.option }}={{ item.value }}'
+    state: present
+  notify: restart jenkins
+  loop: "{{ jenkins_service_user_changes }}"
+
+- name: Set the Jenkins home directory.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^JENKINS_HOME=.*'
+    line: 'JENKINS_HOME={{ jenkins_home }}'
+    mode: 0644
+  notify: restart jenkins
+
+- name: Trigger handlers immediately
+  meta: flush_handlers

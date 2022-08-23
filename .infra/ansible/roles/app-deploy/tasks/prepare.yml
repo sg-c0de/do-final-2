@@ -1,0 +1,65 @@
+---
+- name: Install prerequisites
+  apt:
+    allow_unauthenticated: yes
+    name: '{{ item }}'
+    state: present
+    update_cache: yes
+  loop: '{{ app_packages }}'
+  notify: start php-fpm
+
+- name: Composer install
+  get_url:
+    url: '{{ composer_url }}'
+    checksum: 'sha256:{{ composer_url }}.sha256sum'
+    dest: /opt/composer.phar
+    mode: 0755
+
+- name: Composer create symlink
+  file:
+    src: /opt/composer.phar
+    dest: /usr/local/bin/composer
+    state: link
+
+- name: Ensure there is no application dirs
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: absent
+  loop: '{{ app_dirs }}'
+
+- name: Create application dirs
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    mode: 0775
+    owner: '{{ deploy_user }}'
+    group: '{{ deploy_user }}'
+  loop: '{{ app_dirs }}'
+
+- name: Add a setting to ~/.gitconfig
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: '{{ app_src_dir }}'
+
+- name: Create config file
+  template:
+    src: env.j2
+    dest: '{{ app_conf_dir }}/env'
+    mode: 0775
+    owner: '{{ deploy_user }}'
+    group: '{{ deploy_user }}'
+
+- name: Allow fpm service control to deploy user
+  community.general.sudoers:
+    name: fpm
+    user: "{{ deploy_user }}"
+    commands:
+      - "/bin/systemctl start {{ fpm_service_name }}"
+      - "/bin/systemctl stop {{ fpm_service_name }}"
+      - "/bin/systemctl restart {{ fpm_service_name }}"
+      - "/bin/systemctl reload {{ fpm_service_name }}"
+    nopassword: true
+
+- name: Force fpm start
+  meta: flush_handlers

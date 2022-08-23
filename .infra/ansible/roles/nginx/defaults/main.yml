@@ -1,0 +1,4 @@
+active_sites_path: /etc/nginx/sites-enabled/
+template_filename: nginx.conf.j2
+nginx_worker_connections: 1024
+nginx_gzip_st: "on"

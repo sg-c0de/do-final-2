@@ -1,0 +1,37 @@
+####
+## Source descriptions:
+##
+
+<source>
+  @type syslog
+  port 5140
+  bind 127.0.0.1
+  tag syslog
+</source>
+
+<source>
+  @type tail
+  path /var/log/nginx/access.log
+  pos_file /var/log/td-agent/nginx-access.pos
+  tag nginxlog
+  format nginx
+</source>
+
+####
+## Filter descriptions:
+##
+
+####
+## Match descriptions:
+##
+
+<match **>
+  @type gelf
+  {% for host in groups['log'] %}
+  host {{ hostvars[host]['ansible_facts']['eth0']['ipv4']['address'] }}
+  {% endfor %}
+  port 12201
+  <buffer>
+    flush_interval 5s
+  </buffer>
+</match>

@@ -1,0 +1,11 @@
+---
+- name: Install Graylog repository
+  apt:
+    deb: '{{ graylog_repo_url }}'
+
+- name: Install Graylog
+  apt:
+    name: '{{ item }}'
+    state: latest
+    update_cache: yes
+  loop: '{{ graylog_packages }}'

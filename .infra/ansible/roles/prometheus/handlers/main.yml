@@ -1,0 +1,14 @@
+---
+- name: restart prometheus
+  become: true
+  service:
+    daemon_reload: true
+    name: prometheus
+    state: restarted
+    enabled: yes
+
+- name: reload prometheus
+  become: true
+  service:
+    name: prometheus
+    state: reloaded

@@ -1,0 +1,10 @@
+active_sites_path: /etc/nginx/sites-enabled
+available_sites_path: /etc/nginx/sites-available
+host_filename: https
+
+app_name: october
+app_port: 80
+
+grafana_port: 3000
+graylog_port: 9000
+jenkins_port: 8080

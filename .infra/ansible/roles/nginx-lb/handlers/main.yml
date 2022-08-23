@@ -1,0 +1,4 @@
+- name: reload nginx (upstream)
+  service:
+    name: nginx
+    state: reloaded

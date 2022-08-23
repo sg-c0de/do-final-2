@@ -1,0 +1,12 @@
+- name: reload php-fpm
+  service:
+    name: "{{ fpm_service_name }}"
+    state: reloaded
+  become: yes
+
+- name: start php-fpm
+  service:
+    daemon-reload: yes
+    name: "{{ fpm_service_name }}"
+    state: started
+  become: yes

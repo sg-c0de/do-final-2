@@ -1,0 +1,15 @@
+---
+- name: Deploy elastic config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/elasticsearch/{{ item }}"
+    owner: root
+    group: elasticsearch
+    mode: 0640
+  loop:
+    - elasticsearch.yml
+    - jvm.options
+  notify: restart elasticsearch
+
+- name: Force Elastic restart
+  meta: flush_handlers

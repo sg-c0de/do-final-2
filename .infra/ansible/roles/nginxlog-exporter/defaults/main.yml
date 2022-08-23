@@ -1,0 +1,10 @@
+---
+
+nginxlog_exporter_version: "1.8.0"
+nginxlog_exporter_url: "https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v{{ nginxlog_exporter_version }}/prometheus-nginxlog-exporter_{{ nginxlog_exporter_version }}_linux_amd64.deb"
+
+files:
+  - filename: logrotate_nginx
+    dest: /etc/logrotate.d/nginx
+  - filename: prometheus-nginxlog-exporter.hcl
+    dest: /etc/prometheus-nginxlog-exporter.hcl

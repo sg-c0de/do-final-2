@@ -1,0 +1,7 @@
+---
+- include_tasks: prepare.yml
+  args:
+    apply:
+      become: yes
+- include_tasks: build.yml
+- include_tasks: deploy.yml

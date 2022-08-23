@@ -1,0 +1,23 @@
+gitlab_token =
+
+gitlab_deploy_key =
+
+aws_access_key =
+
+aws_secret_key =
+
+ssh_private_key =
+
+devs =
+
+yc_service_accout_key =
+
+yc_cloud_id =
+
+yc_folder_id =
+
+jenkins_webhook_token =
+
+gitlab_project_id =
+
+gitlab_hook_protocol =

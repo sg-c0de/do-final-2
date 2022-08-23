@@ -1,0 +1,30 @@
+---
+
+- name: Install nginx
+  apt:
+    allow_unauthenticated: yes
+    name: nginx
+    state: present
+    update_cache: yes
+  notify: start nginx
+
+- name: Remove default site config
+  file:
+    path: '{{ active_sites_path }}default'
+    state: absent
+  notify: reload nginx
+
+- name: Install config files
+  template:
+    src: '{{ template_filename }}'
+    dest: '/etc/nginx/nginx.conf'
+    owner: root
+    mode: 0644
+  notify: reload nginx
+
+- name: Check nginx config
+  command: /usr/sbin/nginx -t
+  changed_when: False
+
+- name: Force reload
+  meta: flush_handlers

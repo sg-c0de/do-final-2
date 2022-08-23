@@ -1,0 +1,15 @@
+---
+- name: restart fluentd
+  become: true
+  service:
+    daemon_reload: true
+    name: td-agent
+    state: restarted
+    enabled: yes
+
+- name: restart rsyslogd
+  become: true
+  service:
+    daemon_reload: true
+    name: rsyslog
+    state: restarted

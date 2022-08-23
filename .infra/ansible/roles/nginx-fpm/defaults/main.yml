@@ -1,0 +1,16 @@
+active_sites_path: /etc/nginx/sites-enabled
+available_sites_path: /etc/nginx/sites-available
+host_filename: https
+
+app_name: october
+app_deploy_dir: "/opt/{{ app_name }}"
+
+fast_cgi_sock: unix:/run/php/php7.2-fpm.sock
+#fast_cgi_sock: 127.0.0.1:9000
+
+nginx_user: www-data
+nginx_listen: 80
+
+app_groups:
+  - app
+  - cicd

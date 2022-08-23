@@ -1,0 +1,26 @@
+---
+
+- name: Get nginxlog_exporter deb
+  get_url:
+    url: "{{ nginxlog_exporter_url }}"
+    dest: "/tmp/prometheus-nginxlog-exporter_{{ nginxlog_exporter_version }}_linux_amd64.deb"
+
+- name: Install the nginxlog_exporter package
+  apt:
+    deb: "/tmp/prometheus-nginxlog-exporter_{{ nginxlog_exporter_version }}_linux_amd64.deb"
+
+- name: Deploy config and service files
+  copy:
+    src: "{{ item.filename }}"
+    dest: "{{ item.dest }}"
+    force: yes
+  loop: "{{ files }}"
+  notify: restart nginxlog_exporter
+
+- name: Change nginx log files permissions
+  file:
+    path: /var/log/nginx
+    owner: www-data
+    group: adm
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes

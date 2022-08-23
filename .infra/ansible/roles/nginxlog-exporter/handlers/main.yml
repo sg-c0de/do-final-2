@@ -1,0 +1,7 @@
+---
+
+- name: restart nginxlog_exporter
+  service:
+    name: "prometheus-nginxlog-exporter.service"
+    state: restarted
+    enabled: yes

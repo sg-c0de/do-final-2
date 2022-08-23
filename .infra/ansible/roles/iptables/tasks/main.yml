@@ -1,0 +1,43 @@
+---
+
+- name: Allow localhost traffic
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: 127.0.0.1
+    jump: ACCEPT
+
+- name: Allow all connections on multiple ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports:
+      - "80"
+      - "443"
+      - "22"
+    jump: ACCEPT
+
+- name: Allow local dns resolution
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: 10.0.0.0/8
+    protocol: udp
+    destination_ports: 53
+    jump: ACCEPT
+
+- name: Allow trusted IP
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: "{{ hostvars[item]['ansible_facts']['eth0']['ipv4']['address'] }}"
+    jump: ACCEPT
+  loop: "{{ groups['all'] }}"
+
+- name: Allow related and established connections
+  ansible.builtin.iptables:
+    chain: INPUT
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+
+- name: Set the policy for the INPUT chain to DROP
+  ansible.builtin.iptables:
+    chain: INPUT
+    policy: DROP

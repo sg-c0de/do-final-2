@@ -1,0 +1,31 @@
+- name: Pause for 2 minutes to grafana startup
+  ansible.builtin.pause:
+    minutes: 2
+
+- name: create prometheus datasource
+  community.grafana.grafana_datasource:
+    name: prometheus
+    grafana_url: "{{ grafana_protocol }}://{{ ansible_facts['eth0']['ipv4']['address'] }}:{{ grafana_port }}"
+    grafana_user: "admin"
+    grafana_password: "{{ grafana_admin_password }}"
+    ds_type: prometheus
+    ds_url: "http://{{ ansible_facts['eth0']['ipv4']['address'] }}:9090"
+    access: proxy
+    org_id: "1"
+
+
+- name: Create elasticsearch datasource
+  community.grafana.grafana_datasource:
+    name: "datasource-elastic"
+    grafana_url: "{{ grafana_protocol }}://{{ ansible_facts['eth0']['ipv4']['address'] }}:{{ grafana_port }}"
+    grafana_user: "admin"
+    grafana_password: "{{ grafana_admin_password }}"
+    org_id: "1"
+    ds_type: "elasticsearch"
+    ds_url: "http://{{ hostvars[item]['ansible_facts']['eth0']['ipv4']['address'] }}:9200"
+    database: "graylog_*"
+    time_field: "timestamp"
+    time_interval: "1m"
+    es_version: 70
+    max_concurrent_shard_requests: 42
+  loop: "{{ groups['log'] }}"

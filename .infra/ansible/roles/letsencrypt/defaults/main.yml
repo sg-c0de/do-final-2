@@ -1,0 +1,10 @@
+active_sites_path: /etc/nginx/sites-enabled
+available_sites_path: /etc/nginx/sites-available
+host_filename:
+  - http-redirect
+  - https
+hostnames:
+  - '{{ inventory_hostname }}'
+  - 'grafana.{{ inventory_hostname }}'
+  - 'graylog.{{ inventory_hostname }}'
+  - 'jenkins.{{ inventory_hostname }}'

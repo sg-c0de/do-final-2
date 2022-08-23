@@ -1,0 +1,52 @@
+---
+
+- name: Install letsencrypt
+  apt:
+    name: letsencrypt
+    state: present
+
+- name: Add folder for SSL challenge
+  file:
+    dest: /opt/acme
+    state: directory
+
+- name: Receive SSL cert
+  shell: /usr/bin/letsencrypt certonly -n --webroot -w /opt/acme --agree-tos -d {{ item }} -m sg.soap@gmail.com
+  args:
+    creates: /etc/letsencrypt/live/{{ item }}
+  loop: '{{ hostnames }}'
+
+
+- name: Remove http site config
+  file:
+    path: '{{ active_sites_path }}/http.conf'
+    state: absent
+  notify: reload nginx (le)
+
+- name: Install https and http redirector config
+  template:
+    src: '{{ item }}.j2'
+    dest: '{{ available_sites_path }}/{{ item }}.conf'
+    owner: root
+    mode: 0644
+  loop: "{{ host_filename }}"
+  notify: reload nginx (le)
+
+- name: Force reload
+  meta: flush_handlers
+
+- name: Create virtual hosts symlink
+  file:
+    src: '{{ available_sites_path }}/{{ item }}.conf'
+    dest: '{{ active_sites_path }}/{{ item }}.conf'
+    state: link
+  loop: "{{ host_filename }}"
+  notify: reload nginx (le)
+
+- name: Create cron task for certificate renewal
+  cron:
+    name: Letsencrypt certificate renewal
+    job: "/usr/bin/letsencrypt renew certonly -n --webroot -w /opt/acme -m sg.soap@gmail.com --agree-tos -d {{ inventory_hostname }} --renew-hook 'service nginx reload'"
+    state: present
+    user: root
+    special_time: monthly

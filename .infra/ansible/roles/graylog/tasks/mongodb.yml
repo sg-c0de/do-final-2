@@ -1,0 +1,21 @@
+---
+- name: Import MongoDB signing key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 9DA31620334BD75D9DCB49F368818C72E52529D4
+
+- name: Add MongoDB repository
+  apt_repository:
+    repo: deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse
+    state: present
+    update_cache: yes
+
+- name: Install MongoDB
+  apt:
+    name: mongodb-org
+    state: latest
+    update_cache: yes
+  notify: start mongodb
+
+- name: Force MongoDB start
+  meta: flush_handlers

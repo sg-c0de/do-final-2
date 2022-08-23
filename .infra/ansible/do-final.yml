@@ -1,0 +1,64 @@
+---
+
+- hosts: all
+  become: yes
+  roles:
+    - role: sysconfig
+    - role: iptables
+    - role: users-admin
+    - role: node-exporter
+  remote_user: ubuntu
+  vars_files:
+    - vaults/vault.yml
+
+- hosts: lb
+  become: yes
+  remote_user: ubuntu
+  roles:
+    - role: nginx
+    - role: letsencrypt
+    - role: nginxlog-exporter
+    - role: nginx-lb
+#      vars:
+#        host_filename: http
+
+- hosts: app
+  become: yes
+  remote_user: ubuntu
+  vars_files:
+    - vaults/vault.yml
+  roles:
+    - role: users-deploy
+    - role: psql
+    - role: nginx
+    - role: nginx-fpm
+#      vars:
+#        host_filename: http
+    - role: app-deploy
+      become: no
+    - role: jenkins
+
+- hosts: log
+  become: yes
+  roles:
+    - role: graylog
+  remote_user: ubuntu
+  vars_files:
+    - vaults/vault.yml
+
+- hosts: prom
+  become: yes
+  roles:
+    - role: prometheus
+    - role: grafana
+  remote_user: ubuntu
+  vars_files:
+    - vaults/vault.yml
+
+- hosts: all
+  become: yes
+  roles:
+    - role: fluentd
+  remote_user: ubuntu
+  vars_files:
+    - vaults/vault.yml

@@ -1,0 +1,6 @@
+---
+- name: Install apt-transport-https
+  apt:
+    name: '{{ item }}'
+    state: present
+  loop: '{{ common_packages }}'

@@ -1,0 +1,23 @@
+---
+
+- name: Create host config files (lb)
+  template:
+    src: '{{ host_filename }}.j2'
+    dest: '{{ available_sites_path }}/{{ host_filename }}.conf'
+    owner: root
+    mode: 0644
+    force: yes
+  notify: reload nginx (upstream)
+
+- name: Create virtual hosts symlink (lb)
+  file:
+    src: '{{ available_sites_path }}/{{ host_filename }}.conf'
+    dest: '{{ active_sites_path }}/{{ host_filename }}.conf'
+    state: link
+  notify: reload nginx (upstream)
+
+- name: Check nginx config
+  shell: /usr/sbin/nginx -t
+
+- name: Force reload
+  meta: flush_handlers

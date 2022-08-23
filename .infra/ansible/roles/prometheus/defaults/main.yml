@@ -1,0 +1,17 @@
+---
+prometheus_version: 2.36.2
+prometheus_binary_local_dir: ''
+prometheus_skip_install: false
+
+prometheus_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+prometheus_checksum: "sha256:3f558531c6a575d8372b576b7e76578a98e2744da6b89982ea7021b6f000cddd"
+
+prometheus_config_dir: /etc/prometheus
+prometheus_db_dir: /var/lib/prometheus
+prometheus_read_only_dirs: []
+
+prometheus_web_listen_address: "0.0.0.0:9090"
+prometheus_web_external_url: ''
+
+# Alternative config file name, searched in ansible templates path.
+prometheus_config_file: 'prometheus.yml.j2'

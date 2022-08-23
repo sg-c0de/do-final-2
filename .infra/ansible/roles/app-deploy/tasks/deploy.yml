@@ -1,0 +1,62 @@
+- name: Copy app to version dir
+  copy:
+    src: "{{ app_build_dir }}"
+    dest: "{{ app_version_dir }}"
+    remote_src: yes
+    mode: 0775
+  remote_user: "{{ deploy_user }}"
+
+- name: Copy app to work version dir
+  copy:
+    src: "{{ app_build_dir }}/storage"
+    dest: "{{ app_work_dir }}"
+    remote_src: yes
+    mode: 0775
+  remote_user: "{{ deploy_user }}"
+
+- name: Remove moved dirs
+  file:
+    path: "{{ item }}"
+    state: absent
+  remote_user: "{{ deploy_user }}"
+  loop:
+    - "{{ app_version_dir }}/{{ app_version }}/storage"
+    - "{{ app_work_dir }}/storage/logs"
+
+- name: Create symlinks
+  file:
+    src: "{{ item.src }}"
+    path: "{{ item.dest }}"
+    state: link
+    mode: 0775
+    force: yes
+  remote_user: "{{ deploy_user }}"
+  loop: "{{ app_symlinks }}"
+
+- name: Create symlink
+  file:
+    src: "{{ app_version_dir }}/{{ app_version }}"
+    path: "{{ app_deploy_dir }}/current"
+    state: link
+    force: yes
+    mode: 0775
+  remote_user: "{{ deploy_user }}"
+
+
+- name: Database migration
+  shell: php artisan october:up
+  args:
+    chdir: "{{ app_version_dir }}/{{ app_version }}/"
+  remote_user: "{{ app_user }}"
+  when: db_created.changed
+
+# Cleanup
+
+- name: Remove build dir
+  ansible.builtin.file:
+    path: "{{ app_build_dir }}"
+    state: absent
+  remote_user: "{{ deploy_user }}"
+
+#- name: Force fpm reload
+#  meta: flush_handlers

@@ -1,0 +1,33 @@
+---
+
+- name: Get node_exporter archive
+  get_url:
+    url: "{{ node_exporter_url }}"
+    dest: "/opt/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+
+- name: Unarchive archive
+  unarchive:
+    src: "/opt/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    dest: /opt/
+    remote_src: yes
+
+- name: Make link from binary to system path
+  file:
+    src: "/opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+    dest: /usr/local/bin/node_exporter
+    mode: 0755
+    state: link
+
+- name: Create dir for text exporting
+  file:
+    path: /etc/prometheus/text_exporter
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+
+- name: Create service file
+  copy:
+    src: node_exporter.service
+    dest: "/etc/systemd/system/node_exporter.service"
+  notify: Start node_exporter

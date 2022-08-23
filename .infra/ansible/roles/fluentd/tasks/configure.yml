@@ -1,0 +1,36 @@
+---
+- name: Copy rsyslog config
+  copy:
+    src: 22-fluentd.conf
+    dest: /etc/rsyslog.d/22-fluentd.conf
+  notify: restart rsyslogd
+
+- name: Create service file
+  template:
+    src: td-agent.service.j2
+    dest: /lib/systemd/system/td-agent.service
+  notify: restart fluentd
+
+- name: Configure Fluentd
+  template:
+    src: td-agent.conf.j2
+    dest: /etc/td-agent/td-agent.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fluentd
+
+- name: Install Fluentd plugins
+  gem:
+    name: "{{ item }}"
+    executable: /opt/td-agent/usr/sbin/td-agent-gem
+    state: present
+    user_install: false
+  loop: "{{ fluentd_plugins }}"
+  notify: restart fluentd
+
+#- name: Start Fluentd
+#  service:
+#    name: td-agent
+#    state: started
+#    enabled: yes

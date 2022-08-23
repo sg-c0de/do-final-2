@@ -1,0 +1,130 @@
+upstream {{ app_name }} {
+	{% for host in groups['app'] -%}
+	server {{ hostvars[host]['ansible_facts']['eth0']['ipv4']['address'] }}:{{ app_port }};
+	{%- endfor %}
+}
+
+upstream grafana {
+	{% for host in groups['prom'] -%}
+	server {{ hostvars[host]['ansible_facts']['eth0']['ipv4']['address'] }}:{{ grafana_port }};
+	{%- endfor %}
+}
+
+upstream graylog {
+	{% for host in groups['log'] -%}
+	server {{ hostvars[host]['ansible_facts']['eth0']['ipv4']['address'] }}:{{ graylog_port }};
+	{%- endfor %}
+}
+
+upstream jenkins {
+	{% for host in groups['app'] -%}
+	server {{ hostvars[host]['ansible_facts']['eth0']['ipv4']['address'] }}:{{ jenkins_port }};
+	{%- endfor %}
+}
+
+server {
+	listen 443 ssl;
+
+	ssl_certificate /etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/{{ inventory_hostname }}/privkey.pem;
+
+	server_name {{ inventory_hostname }};
+
+	location / {
+		proxy_set_header    X-Real-IP       $remote_addr;
+		proxy_set_header    Host            $host;
+		proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_http_version  1.1;
+		proxy_set_header    Connection "";
+
+		proxy_read_timeout 2s;
+		proxy_connect_timeout 2s;
+
+		proxy_buffer_size   256k;
+		proxy_buffers   4 512k;
+		proxy_busy_buffers_size   512k;
+
+		proxy_pass http://{{ app_name }};
+	}
+}
+server {
+	listen 443 ssl;
+
+	ssl_certificate /etc/letsencrypt/live/grafana.{{ inventory_hostname }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/grafana.{{ inventory_hostname }}/privkey.pem;
+
+	server_name grafana.{{ inventory_hostname }};
+
+	location / {
+		proxy_set_header    X-Real-IP       $remote_addr;
+		proxy_set_header    Host            $host;
+		proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_http_version  1.1;
+		proxy_set_header    Connection "";
+
+		proxy_read_timeout 2s;
+		proxy_connect_timeout 2s;
+
+		proxy_buffer_size   256k;
+		proxy_buffers   4 512k;
+		proxy_busy_buffers_size   512k;
+
+		proxy_pass http://grafana;
+	}
+
+}
+
+server {
+	listen 443 ssl;
+
+	ssl_certificate /etc/letsencrypt/live/graylog.{{ inventory_hostname }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/graylog.{{ inventory_hostname }}/privkey.pem;
+
+	server_name graylog.{{ inventory_hostname }};
+
+	location / {
+		proxy_set_header    X-Real-IP       $remote_addr;
+		proxy_set_header    Host            $host;
+		proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_http_version  1.1;
+		proxy_set_header    Connection "";
+
+		proxy_read_timeout 10s;
+		proxy_connect_timeout 10s;
+
+		proxy_buffer_size   256k;
+		proxy_buffers   4 512k;
+		proxy_busy_buffers_size   512k;
+
+		proxy_pass http://graylog;
+	}
+
+}
+
+server {
+	listen 443 ssl;
+
+	ssl_certificate /etc/letsencrypt/live/jenkins.{{ inventory_hostname }}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/jenkins.{{ inventory_hostname }}/privkey.pem;
+
+
+	server_name jenkins.{{ inventory_hostname }};
+
+	location / {
+		proxy_set_header    X-Real-IP       $remote_addr;
+		proxy_set_header    Host            $host;
+		proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_http_version  1.1;
+		proxy_set_header    Connection "";
+
+		proxy_read_timeout 10s;
+		proxy_connect_timeout 10s;
+
+		proxy_buffer_size   256k;
+		proxy_buffers   4 512k;
+		proxy_busy_buffers_size   512k;
+
+		proxy_pass http://jenkins;
+	}
+
+}

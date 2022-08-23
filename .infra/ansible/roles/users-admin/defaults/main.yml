@@ -1,0 +1,7 @@
+---
+users:
+  - username: admin
+    ssh_key: "{{ lookup('file', 'vaults/admin_ed25519.pub') }}"
+    groups:
+      - adm
+      - sudo

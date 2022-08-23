@@ -1,0 +1,9 @@
+---
+users:
+  - username: cicd
+    ssh_key: "{{ lookup('file', 'vaults/cicd_ed25519.pub') }}"
+    groups: []
+  - username: app
+    ssh_key: "{{ lookup('file', 'vaults/app_ed25519.pub') }}"
+    groups:
+      - cicd

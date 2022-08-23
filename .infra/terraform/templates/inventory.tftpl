@@ -1,0 +1,22 @@
+all:
+  children:
+    app:
+      hosts:
+%{ for ip in app_ips ~}
+        app-${replace(ip, ".", "-")}.nip.io:
+%{ endfor ~}
+    lb:
+      hosts:
+%{ for ip in lb_ips ~}
+        lb-${replace(ip, ".", "-")}.nip.io:
+%{ endfor ~}
+    log:
+      hosts:
+%{ for ip in log_ips ~}
+        log-${replace(ip, ".", "-")}.nip.io:
+%{ endfor ~}
+    prom:
+      hosts:
+%{ for ip in prom_ips ~}
+        prom-${replace(ip, ".", "-")}.nip.io:
+%{ endfor ~}

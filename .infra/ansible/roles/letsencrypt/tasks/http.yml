@@ -1,0 +1,22 @@
+---
+
+- name: Install http config file
+  template:
+    src: http.j2
+    dest: '{{ available_sites_path }}/http.conf'
+    owner: root
+    mode: 0644
+  notify: reload nginx (le)
+
+- name: Create virtual hosts symlink
+  file:
+    src: '{{ available_sites_path }}/http.conf'
+    dest: '{{ active_sites_path }}/http.conf'
+    state: link
+  notify: reload nginx (le)
+
+- name: Check nginx config
+  shell: /usr/sbin/nginx -t
+
+- name: Force reload
+  meta: flush_handlers

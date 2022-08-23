@@ -1,0 +1,83 @@
+---
+jenkins_repo_url: deb https://pkg.jenkins.io/debian-stable binary/
+jenkins_repo_key_url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+jenkins_pkg_url: https://pkg.jenkins.io/debian/binary
+jenkins_init_file: /etc/default/jenkins
+jenkins_service_file: /lib/systemd/system/jenkins.service
+jenkins_java_options_env_var: JAVA_ARGS
+
+
+
+
+jenkins_package_state: present
+
+jenkins_prefer_lts: false
+
+jenkins_connection_delay: 5
+jenkins_connection_retries: 60
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_jar_location: /opt/jenkins-cli.jar
+jenkins_url_prefix: ""
+jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
+jenkins_dirs:
+  - "{{ jenkins_home }}"
+  - /var/cache/jenkins
+  - /var/log/jenkins
+# Plugin list can use the plugin name, or a name/version dict.
+jenkins_plugins:
+  - build-timeout
+  - credentials-binding
+  - timestamper
+  - ws-cleanup
+  - workflow-aggregator
+  - pipeline-stage-view
+  - git
+  - gitlab-plugin
+  - matrix-auth
+  - pam-auth
+  - ldap
+
+#  - blueocean
+#  - name: influxdb
+#    version: "1.12.1"
+
+jenkins_plugins_state: present
+jenkins_plugin_updates_expiration: 86400
+jenkins_plugin_timeout: 30
+jenkins_plugins_install_dependencies: true
+jenkins_updates_url: "https://updates.jenkins.io"
+
+jenkins_admin_username: admin
+jenkins_admin_password: admin
+
+jenkins_process_user: cicd
+jenkins_process_group: "{{ jenkins_process_user }}"
+
+jenkins_init_changes:
+  - option: "JENKINS_ARGS"
+    value: "--prefix={{ jenkins_url_prefix }}"
+  - option: "{{ jenkins_java_options_env_var }}"
+    value: "{{ jenkins_java_options }}"
+
+jenkins_init_user_changes:
+  - option: "JENKINS_USER"
+    value: "{{ jenkins_process_user }}"
+  - option: "JENKINS_GROUP"
+    value: "{{ jenkins_process_group }}"
+
+jenkins_service_user_changes:
+  - option: "User"
+    value: "{{ jenkins_process_user }}"
+  - option: "Group"
+    value: "{{ jenkins_process_group }}"
+
+jenkins_credentials:
+  - username: jenkins
+    password: "{{ jenkins_git_password }}"
+
+jenkins_git_password: []
+
+git_url: https://gitlab.rebrainme.com/devops_users_repos/2735/do-final-2.git
+
+jenkins_webhook_token_encrypted: []
