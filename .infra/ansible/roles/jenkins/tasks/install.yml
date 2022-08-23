@@ -32,7 +32,14 @@
     name:
       - jenkins
     state: present
+    policy_rc_d: 101
   notify: configure default users
+
+- name: Set ES service timeout
+  lineinfile:
+    path: "{{ jenkins_service_file }}"
+    regexp: '^#TimeoutStartSec='
+    line: TimeoutStartSec=500
 
 - name: Ensure jenkins directories exists.
   file:
