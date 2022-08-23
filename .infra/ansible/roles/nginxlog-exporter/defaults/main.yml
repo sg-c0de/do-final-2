@@ -6,5 +6,5 @@ nginxlog_exporter_url: "https://github.com/martin-helmich/prometheus-nginxlog-ex
 files:
   - filename: logrotate_nginx
     dest: /etc/logrotate.d/nginx
-  - filename: prometheus-nginxlog-exporter.hcl
+  - filename: prometheus-nginxlog-exporter-conf
     dest: /etc/prometheus-nginxlog-exporter.hcl
